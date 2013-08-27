@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>com.developpez</groupId>
+		<artifactId>myapplication-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>myapplication</artifactId>
+	<packaging>war</packaging>
+	<name>My Application</name>
+	
+	<dependencies>
+	
+	    <!--  GWT deps (from central repo) -->
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<version>${gwtVersion}</version>
+			<scope>runtime</scope>
+		</dependency>
+	
+		<!-- model and persistence -->
+		<dependency>
+			<groupId>${groupId}</groupId>
+			<artifactId>myapplication-model</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${groupId}</groupId>
+			<artifactId>myapplication-service</artifactId>
+			<version>${version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>${groupId}</groupId>
+			<artifactId>myapplication-client</artifactId>
+			<version>${version}</version>
+			<type>war</type>
+			<scope>runtime</scope>
+		</dependency>		
+		
+		
+		<!--  test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- GWT SL for spring integration on server side -->		
+		<dependency>
+			<groupId>net.sf.gwt-widget</groupId>
+			<artifactId>gwt-sl</artifactId>
+			<version>0.1.5b</version>
+		</dependency>
+	
+		<!-- Spring web mvc for dispatcher servlet -->		
+		<dependency>
+		   <groupId>org.springframework</groupId>
+  			<artifactId>spring-webmvc</artifactId>		
+			<version>2.5.6</version>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>2.5.6</version>
+		</dependency>
+		
+		<!-- For the association between GWT and hibernate -->
+		<dependency>
+			<groupId>net.sf.gilead</groupId>
+			<artifactId>adapter4gwt</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.gilead</groupId>
+			<artifactId>hibernate-util</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		
+		<!-- spring security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>2.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core-tiger</artifactId>
+			<version>2.0.4</version>
+		</dependency>
+		
+		<!-- for annotations -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-log4j12</artifactId>
+		    <version>1.4.2</version>
+		</dependency> 		
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-api</artifactId>
+		    <version>1.4.2</version>
+		</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.6</version>
+			</dependency>
+
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>0.3.1</version>
+				<configuration>
+					<wait>${cargo.wait}</wait>
+					<container>
+						<containerId>${tomcat.containerId}</containerId>
+						<log>${project.build.directory}/${tomcat.containerId}/cargo.log</log>
+						<zipUrlInstaller>
+							<url>http://www.apache.org/dist/tomcat/tomcat-5/v5.5.28/bin/apache-tomcat-5.5.28.zip</url>
+							<installDir>${tomcat.installDir}</installDir>
+						</zipUrlInstaller>
+                        <timeout>360000</timeout>
+					</container>
+					<configuration>
+						<home>${project.build.directory}/${tomcat.containerId}/container</home>
+						<properties>
+							<cargo.servlet.port>${tomcat.port}</cargo.servlet.port>
+							<cargo.logging>high</cargo.logging>
+						</properties>
+					</configuration>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<!--  profiles (with activation per platform) -->
+	<profiles>
+		<profile>
+			<id>debug</id>
+			<!-- 
+				profil permettant de debugger le tomcat 
+				les logs sont dans consoleWeb\target\tomcat5x\cargo.log
+			-->
+			<activation>
+				<property>
+					<name>debug</name>
+					<value>true</value>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<configuration>
+							<wait>true</wait>
+							<container>
+								<containerId>${tomcat.containerId}</containerId>
+							</container>
+							<configuration>
+								<properties>
+									<cargo.jvmargs>
+										-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=7456
+									</cargo.jvmargs>
+								</properties>
+							</configuration>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!-- Launch cargo on pre-integration-test phase -->
+			<id>cargo</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>start-container</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-container</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>		
+		
+	</profiles>
+</project>

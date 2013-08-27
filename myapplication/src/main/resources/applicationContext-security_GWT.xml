@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!--
+		Note: forcing eager session creation in
+		HttpSessionContextIntegrationFilter to ensure that session cookie is
+		set at the completion of the authenticate call.
+	-->
+	<security:http entry-point-ref="authenticationProcessingFilterEntryPoint"
+		create-session="always"   access-denied-page="/index.html" session-fixation-protection="none">
+		<security:intercept-url pattern="/com.developpez.myapplication.Application/Application.html" access="ROLE_USER"/>
+		<security:form-login login-page="/index.html" />
+	</security:http>
+		
+	<!--
+		Standard spring filter used to redirect unauthorized request to the login form
+		Unauthorized request are intercepted by the pattern specified in the security namespace
+		above : eg the application itself.
+		Except for the main filter which prevent the access to the applicaton, 
+		remember that here we are dealing with GWT
+		RPC requests and NOT normal web requests. The only sensible thing to
+		do is to, in GWT server-side code, explicitly handle exceptions thrown
+		by the AbstractSecurityInterceptor (Method Security interceptor in
+		this case) to either "redirect" the user to the login page or display
+		"access denied" messages.
+	-->
+    <bean id="authenticationProcessingFilterEntryPoint"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+      <property name="loginFormUrl" value="/index.html"/>
+      <property name="forceHttps" value="false"/>
+    </bean>
+	
+	<!--
+		An AuthenticationProvider must be present in order to specify Spring
+		Security declaratively using the security namespace, even though this
+		provider will never be used as we are not relying on the filter chain
+		mechanism for authentication - we have not defined any
+		"authenticating" SpringSecurityFilter in the filter chain.
+		Furthermore, Spring Method Security interceptor does not
+		reauthenticate by default; it will happily accept any authenticated
+		"Authentication" found in the security context, which our own
+		authentication mechanism will have created.
+	-->
+	<bean id="dummyAuthenticationProvider"
+		class="com.developpez.security.core.DummyAuthenticationProvider">
+		<security:custom-authentication-provider />
+	</bean>
+
+	<security:global-method-security
+		secured-annotations="enabled" jsr250-annotations="disabled" />
+
+</beans>

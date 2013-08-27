@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================================
+			FICHIER DE CONFIGURATION SPRING COMMUN A TOUTES LES WEBAPPS WEBINTAKE 
+			
+				Définition de la dataSource vers la base de données Webintake
+	     =================================================================================== -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- le gestionnaire de BLOB / CLOB de chez Spring -->
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+    	
+	<!-- Hibernate SessionFactory Definition -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" >
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+		<property name="dataSource">
+			<ref bean="datasource" />
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>com.developpez.myapplication.model.Project</value>
+				<value>com.developpez.myapplication.model.Authors</value>
+			</list>
+		</property>
+		<property name="lobHandler" ref="lobHandler"/>
+	</bean>
+
+	<!-- Hibernate Transaction Manager Definition -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property
+			name="sessionFactory"
+			ref="sessionFactory" />
+	</bean>
+
+	<bean
+		id="transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property
+			name="transactionManager"
+			ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		id="autoProxyCreator"
+		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="interceptorNames">
+			<list>
+				<idref local="transactionInterceptor" />
+			</list>
+		</property>
+		<property name="beanNames">
+			<list>
+				<idref bean="projectDAO"/>
+			</list>
+		</property>
+	</bean>
+	
+    <bean id="projectDAO" class="com.developpez.myapplication.dao.impl.ProjectDAO">
+        <constructor-arg><value>com.developpez.myapplication.model.Project</value></constructor-arg>
+        <property name="sessionFactory">
+            <ref bean="sessionFactory" />
+        </property>
+    </bean>
+    
+    
+	<!--
+	The Gilead POJO stateless proxy store.
+	 -->
+	<bean id="proxyStore" class="net.sf.gilead.core.store.stateless.StatelessProxyStore" />
+	
+	<bean id="persistenceUtil" class="net.sf.gilead.core.hibernate.HibernateUtil">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!--
+	Gilead persistentBeanManager binds the POJO store with a Hibernate session factory (through the hibernate util).
+	 -->
+	
+	<bean id="persistentBeanManager" class="net.sf.gilead.core.PersistentBeanManager">
+		<property name="proxyStore" ref="proxyStore" />
+		<property name="persistenceUtil" ref="persistenceUtil"></property>
+	</bean>
+    
+</beans>    	

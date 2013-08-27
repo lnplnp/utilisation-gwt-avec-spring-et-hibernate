@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+	
+	<bean id="urlProjectMapping" class="org.gwtwidgets.server.spring.GWTHandler">
+	<!-- Supply here mappings between URLs and services. Services must implement the RemoteService interface but
+	are not otherwise restricted.-->
+		<property name="mappings">
+			<map>
+				<!-- Other mappings could follow -->
+				<entry key="/com.developpez.myapplication.Application/ProjectService.rpc" value-ref="projectService" />
+				<entry key="/com.developpez.myapplication.Login/AuthenticationService.rpc" value-ref="authenticationService" />
+				<!-- because logout can also be called from the application module -->
+				<entry key="/com.developpez.myapplication.Application/AuthenticationService.rpc" value-ref="authenticationService" />
+			</map>
+		</property>
+		<property name="serviceExporterFactory" ref="serviceExporterFactory"></property>
+	</bean>
+
+    <bean id="serviceExporterFactory" class="com.developpez.server.spring.GWTRPCSecuredServiceExporterFactory" >
+    	<property name="manager" ref="persistentBeanManager"></property>
+    </bean>
+    
+    <bean id="serviceExporter" class="com.developpez.server.spring.GWTRPCSecuredServiceExporter">
+    	<property name="beanManager" ref="persistentBeanManager"></property>
+    </bean> 
+
+</beans>
