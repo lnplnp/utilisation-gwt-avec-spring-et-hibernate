@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.developpez</groupId>
+	<artifactId>myapplication-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>My Application parent pom</name>
+	<description>Pom parent</description>
+	
+	<!--  include pluginRepository and repository for GWT-Maven -->
+	<pluginRepositories>
+        <pluginRepository>
+            <id>gwt-maven-plugins</id>
+            <url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/</url>
+        </pluginRepository>
+    </pluginRepositories>    
+    <repositories>        
+        <repository>
+            <id>gwt-maven</id>
+            <url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/</url>
+        </repository>
+        <repository>
+        	<id>smartclient</id>
+        	<name>smartclient</name>
+        	<url>http://smartgwtsnap.rorschach.de</url>
+        </repository>
+        <repository>
+        	<id>gilead</id>
+        	<name>gilead</name>
+        	<url>https://gilead.svn.sourceforge.net/svnroot/gilead/gilead/maven-repo/</url>
+        </repository>
+    </repositories>
+    
+	<properties>
+		<!--  convenience to define GWT version in one place -->
+		<gwtVersion>1.7.0</gwtVersion>
+		<!--  default configuration for tomcat -->
+		<tomcat.containerId>tomcat5x</tomcat.containerId>
+		<tomcat.port>8082</tomcat.port>
+		<tomcat.installDir>${java.io.tmpdir}/cargo/installs</tomcat.installDir>
+		<java.awt.headless>true</java.awt.headless>
+		<cargo.wait>false</cargo.wait>
+		<gwt.noserver>true</gwt.noserver>
+	</properties>
+	
+	<modules>
+		<module>myapplication-model</module>
+		<module>myapplication-service</module>
+		<module>myapplication-client</module>
+		<module>myapplication</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<!--  tell the compiler we can use 1.5 -->	
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>		
+		</plugins>
+	</build>
+	
+</project>
